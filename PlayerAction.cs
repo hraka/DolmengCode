@@ -104,12 +104,8 @@ public class PlayerAction : MonoBehaviour
 
         }
         if(Input.GetMouseButtonDown(0)) { //겹치면 안된다.
-            //if(manager.isStackMode) {
-            if(manager.canPutDown) {
-                Debug.Log("클릭해서 내려놓는거야~~~");
-                manager.PutDown();
-                animator.SetBool("isPickUp", false);
-            }
+            
+            PutDown();
         }
         if(Input.GetMouseButtonDown(1)) {
             if(manager.isPicked && !manager.isStackMode) {
@@ -168,10 +164,18 @@ public class PlayerAction : MonoBehaviour
 
     //마우스로 움직이는 경우
 
+    public void PutDown() {
+        //스텍 모드 돌입 이후 시간이 흐른 후에 키가 동작하도록 함.
+        //플레이어 액션에서의 풋 다운은 매니저에서의 풋 다운을 호출한다. 음... 왜 굳이 이런 구조를...?
+        //if(manager.isStackMode) {
+        if(manager.canPutDown) {
+            manager.PutDown();
+            animator.SetBool("isPickUp", false);
+        }
+    }
 
     public void PickAndStack() {
         if(manager.isStackMode) {
-                //Debug.Log("스택모드에서 스페이스");
                 //스택 중 픽업으로
                 manager.PickUpFromStackMode();
                 animator.SetBool("isPickUp", true);
@@ -182,7 +186,6 @@ public class PlayerAction : MonoBehaviour
                 animator.SetBool("isPickUp", false);
             }
             else if(meetObject != null){ //스택모드도 픽업상태도 아님
-                //Debug.Log("this is " + meetObject);
                 manager.PickUp(meetObject);
                 animator.SetBool("isPicking", true);
                 animator.SetBool("isPickUp", true);
@@ -216,6 +219,9 @@ public class PlayerAction : MonoBehaviour
         }
         else if(codeNum == 2) { //들기
             PickAndStack();
+        }
+        else if(codeNum == 3) { //스택모드에서 내려놓기
+            PutDown();
         }
     }
     public void SetX(float mx) { //캐릭터 이동 함수

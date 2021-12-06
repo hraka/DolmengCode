@@ -51,7 +51,10 @@ public class GameManager : MonoBehaviour
     private GameObject centerObj;
 
     [SerializeField]
-    private GameObject UIAction;
+    private GameObject[] UINormalOn;
+
+    [SerializeField]
+    private GameObject[] UIStackOn;
 
 
     private void Awake() //Awake는 뭐고 Start는 뭐지?
@@ -160,7 +163,7 @@ public class GameManager : MonoBehaviour
             Debug.Log(timing.GetRunningTime());
             //Debug.Log(shadow.GetRu)
 
-            Invoke("CanPutDown", 2f);
+            Invoke("CanPutDown", .8f);
         } else {
             Debug.Log("오류발생");
         }
@@ -175,12 +178,26 @@ public class GameManager : MonoBehaviour
 
     private void StackModeUI() {
 
-        UIAction.gameObject.SetActive(false);
+        for(int i = 0; i < UINormalOn.Length; i++) {
+            UINormalOn[i].gameObject.SetActive(false);
+        }
+
+        for(int j = 0; j < UIStackOn.Length; j++) {
+            UIStackOn[j].gameObject.SetActive(true);
+        }
+
+        
     }
 
     private void NormalModeUI() {
 
-        UIAction.gameObject.SetActive(true);
+        for(int i = 0; i < UINormalOn.Length; i++) {
+            UINormalOn[i].gameObject.SetActive(true);
+        }
+
+        for(int j = 0; j < UIStackOn.Length; j++) {
+            UIStackOn[j].gameObject.SetActive(false);
+        }
     }
 
 
@@ -215,10 +232,9 @@ public class GameManager : MonoBehaviour
 
             //카메라가 바뀐다. (단 스택모드에서 이동할 때만...)
             //돌의 속성이 바뀐다.
-            //모드가 바뀐다.
+            //조작시 모드가 연출 딜레이 후에 바뀐다.
 
             Invoke("OutMode",.8f);
-            NormalModeUI();
         }
         else {
             //아무것도 없을일은 없는데...
@@ -231,6 +247,8 @@ public class GameManager : MonoBehaviour
         stackModeCam.enabled = false;
         isMoveable = true;
         isPicked = false;
+
+        NormalModeUI();
     }
 
     private void MomentRelease() {
