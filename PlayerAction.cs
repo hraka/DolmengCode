@@ -40,6 +40,12 @@ public class PlayerAction : MonoBehaviour
 
     public void Update()
     {
+
+
+        if(Random.Range(1,1000000) <= 1) {
+            animator.SetTrigger("looking");
+            Debug.Log("랜덤발동!");
+        }
         //움직일 수 없는 상태면 방향값은 0이다.
 
         float x = manager.isMoveable? Input.GetAxisRaw("Horizontal") : 0;
@@ -103,10 +109,11 @@ public class PlayerAction : MonoBehaviour
             SitChange();
 
         }
-        if(Input.GetMouseButtonDown(0)) { //겹치면 안된다.
+        if(Input.GetMouseButtonUp(0)) { //겹치면 안된다. //터치 모드를 위해 Up으로 변경
             
             PutDown();
         }
+        //키보드+마우스 조작과 터치 조작 방식이 극명하게 달라질 것 같다.
         if(Input.GetMouseButtonDown(1)) {
             if(manager.isPicked && !manager.isStackMode) {
                 //Debug.Log("바로 내려놓기");
@@ -138,19 +145,11 @@ public class PlayerAction : MonoBehaviour
 
 
         if(Input.GetKeyDown("1")) {
-            if(animator.GetBool("isMoodGood"))
-                animator.SetBool("isMoodGood", false);
-            else
-                animator.SetBool("isMoodGood", true);
+            ChangeMood(1);
         }
 
         if(Input.GetKeyDown("2")) {
-            if(animator.GetBool("isZzaran")) {
-                animator.SetBool("isZzaran", false);
-            }else {
-                animator.SetBool("isZzaran", true);
-
-            }
+            ChangeMood(2);
         }
 
         
@@ -164,6 +163,22 @@ public class PlayerAction : MonoBehaviour
 
     //마우스로 움직이는 경우
 
+    public void ChangeMood(int moodNum) {
+        if(moodNum == 1) {
+            if(animator.GetBool("isMoodGood"))
+                animator.SetBool("isMoodGood", false);
+            else
+                animator.SetBool("isMoodGood", true);
+        }
+        else if(moodNum == 2) {
+            if(animator.GetBool("isZzaran")) {
+                animator.SetBool("isZzaran", false);
+            }else {
+                animator.SetBool("isZzaran", true);
+            }
+        }
+    }
+
     public void PutDown() {
         //스텍 모드 돌입 이후 시간이 흐른 후에 키가 동작하도록 함.
         //플레이어 액션에서의 풋 다운은 매니저에서의 풋 다운을 호출한다. 음... 왜 굳이 이런 구조를...?
@@ -171,7 +186,9 @@ public class PlayerAction : MonoBehaviour
         if(manager.canPutDown) {
             manager.PutDown();
             animator.SetBool("isPickUp", false);
+            //animator.SetTrigger("looking");
         }
+
     }
 
     public void PickAndStack() {
@@ -209,10 +226,6 @@ public class PlayerAction : MonoBehaviour
         }
     }
 
-    private void StandCharactor() {
-        
-    }
-
     public void ActCode(int codeNum) {
         if(codeNum == 1) { //앉기
             SitChange();
@@ -222,6 +235,12 @@ public class PlayerAction : MonoBehaviour
         }
         else if(codeNum == 3) { //스택모드에서 내려놓기
             PutDown();
+        }
+        else if(codeNum == 11) {
+            ChangeMood(1);
+        }
+        else if(codeNum == 12) {
+            ChangeMood(2);
         }
     }
     public void SetX(float mx) { //캐릭터 이동 함수

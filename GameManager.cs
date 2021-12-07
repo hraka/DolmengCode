@@ -155,15 +155,15 @@ public class GameManager : MonoBehaviour
             pickedSpriteRenderer = pickedObject.GetComponent<SpriteRenderer>();
 
             shadow = AddShadow(pickedObject);   //그림자를 저장해야 나중에 삭제할 수 있다.
-            //AddShadow(pickedObject, pickedSpriteRenderer.sprite);
 
             DrawRange(shadow);
             //center = DrawCenter(pickedObject);
             Debug.Log(range3);
             Debug.Log(timing.GetRunningTime());
-            //Debug.Log(shadow.GetRu)
 
-            Invoke("CanPutDown", .8f);
+
+            //스택모드 조작 활성화 시간
+            Invoke("CanPutDown", .1f);
         } else {
             Debug.Log("오류발생");
         }
@@ -218,8 +218,9 @@ public class GameManager : MonoBehaviour
 
             canPutDown = false;
 
-            int check = TimingCheck(timing.GetTimingVec());
-            TimingFeedback(check, pickedObject);
+            /*잠시 지우는 타이밍 체크*/
+            //int check = TimingCheck(timing.GetTimingVec());
+            //TimingFeedback(check, pickedObject);
 
 
             timing.SetSpeed(0f);
@@ -227,7 +228,9 @@ public class GameManager : MonoBehaviour
             getPoint.transform.DetachChildren();
             pickedObject.layer = 9;
 
-            Invoke("MomentRelease", 0.16f);
+            /*타이밍 체크를 위해 기다리는 시간 잠시 삭제*/
+            MomentRelease(); //Invoke("MomentRelease", 0.16f);
+
             pickedObject = null;
 
             //카메라가 바뀐다. (단 스택모드에서 이동할 때만...)
@@ -277,7 +280,8 @@ public class GameManager : MonoBehaviour
 
 
         shadowRenderer = shadow.GetComponent<SpriteRenderer>();
-        shadowRenderer.color = new Color(0f, 0f, 1f, .35f);
+        //shadowRenderer.color = new Color(0f, 0f, 1f, .35f);
+        shadowRenderer.color = new Color(0f, 0f, 1f, 0f);
 
 
         //shadow.transform.localScale = getting.transform.sc;
