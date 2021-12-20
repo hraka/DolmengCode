@@ -42,7 +42,7 @@ public class PlayerAction : MonoBehaviour
     {
 
 
-        if(Random.Range(1,1000000) <= 1) {
+        if(Random.Range(1,25000) <= 1) {
             animator.SetTrigger("looking");
             Debug.Log("랜덤발동!");
         }
