@@ -14,8 +14,6 @@ public class Area : MonoBehaviour
         this.areaSpawner = areaSpawner;
         this.playerTransform = playerTransform;
         this.areaIndex = areaIndex;
-
-        Debug.Log("캐릭터 : " + playerTransform.position.x + " 맵 : " + this.transform.position.x);
     }
 
     private void Update() {

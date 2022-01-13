@@ -44,7 +44,7 @@ public class PlayerAction : MonoBehaviour
 
         if(Random.Range(1,25000) <= 1) {
             animator.SetTrigger("looking");
-            Debug.Log("랜덤발동!");
+            // Debug.Log("랜덤발동!");
         }
         //움직일 수 없는 상태면 방향값은 0이다.
 

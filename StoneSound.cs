@@ -37,7 +37,7 @@ public class StoneSound : MonoBehaviour
     // }
 
     private void OnCollisionEnter2D(Collision2D collision) {
-        Debug.Log("돌충도로오롱");
+        //Debug.Log("돌충도로오롱");
         RunSound();
     }
  }

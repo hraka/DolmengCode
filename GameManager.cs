@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
 
     private SpriteRenderer shadowRenderer;
 
-    private Shadow timing;
+    //private Shadow timing;
 
     private Vector3 standardSize = new Vector3(1, 1, 1);
 
@@ -56,10 +56,13 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject[] UIStackOn;
 
+    [SerializeField] private GameObject frontHand;
+    private GameObject bothHand;
+
 
     private void Awake() //Awake는 뭐고 Start는 뭐지?
     {
-        getPoint = GameObject.FindGameObjectWithTag("Get");
+        bothHand = GameObject.FindGameObjectWithTag("Get");
         Invoke("Move", 2);
     }
 
@@ -102,11 +105,24 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            if(meetObject == null) {
+                return;
+            }
+            
             pickedObject = meetObject;
+            if(meetObject.GetComponent<ObjData>() != null) {
+                getPoint = frontHand;
+            } else {
+                getPoint = bothHand;
+            }
+
+            pickedObject.GetComponent<ObjOnAir>().SetPickedState(true);
             meetObject.transform.SetParent(getPoint.transform);
             meetObject.transform.localPosition = Vector3.zero;
             //다른 돌과 충돌하지 않는 상태
-            pickedObject.layer = 10;
+            pickedObject.GetComponent<ObjOnAir>().SetState(10); //색 변화를 위한 디버깅용 함수. 그러나 모든 오브젝트에 다 있지는 않다.
+            //pickedObject.layer = 10;
+
             pickedRigid = pickedObject.GetComponent<Rigidbody2D>(); //이런식으로 일시적인 변수를(null이 되기도하는) 전역변수로 써도 괜찮은 걸까?
             //rigid.gravityScale = 0;
             pickedRigid.isKinematic = true;
@@ -154,12 +170,12 @@ public class GameManager : MonoBehaviour
 
             pickedSpriteRenderer = pickedObject.GetComponent<SpriteRenderer>();
 
-            shadow = AddShadow(pickedObject);   //그림자를 저장해야 나중에 삭제할 수 있다.
+            //shadow = AddShadow(pickedObject);   //그림자를 저장해야 나중에 삭제할 수 있다.
 
-            DrawRange(shadow);
+            //DrawRange(shadow);
             //center = DrawCenter(pickedObject);
             Debug.Log(range3);
-            Debug.Log(timing.GetRunningTime());
+            //Debug.Log(timing.GetRunningTime());
 
 
             //스택모드 조작 활성화 시간
@@ -223,10 +239,12 @@ public class GameManager : MonoBehaviour
             //TimingFeedback(check, pickedObject);
 
 
-            timing.SetSpeed(0f);
+            //timing.SetSpeed(0f);
 
             getPoint.transform.DetachChildren();
-            pickedObject.layer = 9;
+            pickedObject.GetComponent<ObjOnAir>().SetPickedState(false);
+            pickedObject.GetComponent<ObjOnAir>().SetState(16); //임시로 공중에 뜬 상태로 만든다. 바닥에 닿으면 바로 바닥 상태로 변하더라.
+            //pickedObject.layer = 16; 
 
             /*타이밍 체크를 위해 기다리는 시간 잠시 삭제*/
             MomentRelease(); //Invoke("MomentRelease", 0.16f);
@@ -286,9 +304,9 @@ public class GameManager : MonoBehaviour
 
         //shadow.transform.localScale = getting.transform.sc;
 
-        timing = shadow.AddComponent<Shadow>();
-        timing.SetRunningTime(Random.Range(0, 10f));
-        timing.SetSpeed(timingSpeed);
+        //timing = shadow.AddComponent<Shadow>();
+        //timing.SetRunningTime(Random.Range(0, 10f));
+        //timing.SetSpeed(timingSpeed);
 
         return shadow;
     }

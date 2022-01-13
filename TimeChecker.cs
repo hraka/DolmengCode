@@ -13,7 +13,7 @@ public class TimeChecker : MonoBehaviour
     void Start()
     {
         timeSpan = 0.0f;
-        checkTime = 90.0f;
+        checkTime = 10.0f;
         
         StartCoroutine("TimePass");
     }
@@ -31,7 +31,8 @@ public class TimeChecker : MonoBehaviour
             if(timeSpan > checkTime)
             {
                 //이벤트
-                earth.StartShake(0.23f, 2f);
+                earth.gameObject.SetActive(true);
+                earth.StartShake(50f, 2f);
                 mainCam.StartShake(10f, 2f);
                 stackModeCam.StartShake(10f, 2f);
                 timeSpan = 0.0f;

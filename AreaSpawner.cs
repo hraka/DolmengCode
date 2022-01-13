@@ -6,12 +6,12 @@ public class AreaSpawner : MonoBehaviour
     [SerializeField] private GameObject[] areaPrefabs;
     [SerializeField] private int spawnAreaCountStart;
 
-    [SerializeField] private float xDistance = 20; //구역 사이의 거리
+    [SerializeField] private float xDistance = 10; //구역 사이의 거리
 
     [SerializeField] private float ySet = 0; //구역 사이의 거리
 
     
-    [SerializeField] private float size = 0.5f;
+    [SerializeField] private float size = 1f;
 
     [SerializeField]
     private Transform playerTransform;
@@ -50,6 +50,8 @@ public class AreaSpawner : MonoBehaviour
 
         clone.GetComponent<Area>().Setup(this, playerTransform, areaIndex);
 
+        clone.GetComponent<ObjectSpawnerInArea>().MakeObject();
+
         areaIndex ++;
 
         //실시간 생성이 아니라 미리 생성해두고 그걸 하나씩 꺼내와도 좋겠다.
@@ -65,6 +67,8 @@ public class AreaSpawner : MonoBehaviour
 
         clone.GetComponent<Area>().Setup(this, playerTransform, areaIndex);
 
+        clone.GetComponent<ObjectSpawnerInArea>().MakeObject();
+
         //실시간 생성이 아니라 미리 생성해두고 그걸 하나씩 꺼내와도 좋겠다.
     }
     public void SpawnAreaRight(int areaIndex) {
@@ -78,6 +82,8 @@ public class AreaSpawner : MonoBehaviour
         clone.transform.localScale = new Vector3(size, size, 1f);
 
         clone.GetComponent<Area>().Setup(this, playerTransform, newAreaIndex);
+
+        clone.GetComponent<ObjectSpawnerInArea>().MakeObject();
 
         //실시간 생성이 아니라 미리 생성해두고 그걸 하나씩 꺼내와도 좋겠다.
     }
@@ -93,6 +99,8 @@ public class AreaSpawner : MonoBehaviour
         clone.transform.localScale = new Vector3(size, size, 1f);
 
         clone.GetComponent<Area>().Setup(this, playerTransform, newAreaIndex);
+
+        clone.GetComponent<ObjectSpawnerInArea>().MakeObject();
 
         //실시간 생성이 아니라 미리 생성해두고 그걸 하나씩 꺼내와도 좋겠다.
     }
