@@ -13,7 +13,7 @@ public class TimeChecker : MonoBehaviour
     void Start()
     {
         timeSpan = 0.0f;
-        checkTime = 10.0f;
+        checkTime = 20.0f;
         
         StartCoroutine("TimePass");
     }

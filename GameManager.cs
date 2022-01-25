@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public bool isPicked;
     public bool isStackMode;
     public bool isMoveable;
+
+    private bool isStick;
     private GameObject getPoint;
     private Rigidbody2D pickedRigid;
     private SpriteRenderer pickedSpriteRenderer;
@@ -73,9 +75,16 @@ public class GameManager : MonoBehaviour
     private void Update() {
         if(isStackMode) {
             if(pickedObject != null) { //매번 체크하는게 과연 좋을까? 업데이트인데...
-                pickedObject.transform.localPosition = mousePos();
 
-                //물체 회전
+                if(isStick) {
+                    //pickedObject.transform.localRotation = Quaternion.Euler(0f, mousePos().y, 0f);
+                    TurnRotation();
+                    
+                } else {
+                    pickedObject.transform.localPosition = mousePos();
+                }
+//물체 회전
+                
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     pickedObject.transform.Rotate(0.0f, 0.0f, 35.0f);// * Time.deltaTime을 곱하면 천천히 회전함 (Down빼고)
@@ -84,10 +93,26 @@ public class GameManager : MonoBehaviour
                 {
                     pickedObject.transform.Rotate(0.0f, 0.0f, -35.0f);
                 }
+
+        
+                
             }
         }
     }
 
+    public void TurnRotation() {
+        Vector3 mouseTarget = mousePos();
+        Vector3 oPosition = pickedObject.transform.position;
+
+        float dy = mouseTarget.y - oPosition.y;
+        float dx = mouseTarget.x - oPosition.x;
+
+        float rotateDegree = (Mathf.Atan2(dy, dx) - 90f) * Mathf.Rad2Deg;
+
+        pickedObject.transform.rotation = Quaternion.Euler (0f, 0f, rotateDegree);
+
+
+    }
 
 
     //돌들기 모드
@@ -108,27 +133,44 @@ public class GameManager : MonoBehaviour
             if(meetObject == null) {
                 return;
             }
+            if(meetObject.GetComponent<ObjData>() == null) {
+                Debug.Log("오브젝트 데이터 컴포넌트 없음");
+                return;
+            }
+            
             
             pickedObject = meetObject;
-            if(meetObject.GetComponent<ObjData>() != null) {
+            int objId = pickedObject.GetComponent<ObjData>().id;
+            if(objId == 2) { 
                 getPoint = frontHand;
+                pickedObject.transform.localRotation = Quaternion.identity;
+                isStick = true;
             } else {
                 getPoint = bothHand;
+                isStick = false;
             }
 
             pickedObject.GetComponent<ObjOnAir>().SetPickedState(true);
-            meetObject.transform.SetParent(getPoint.transform);
-            meetObject.transform.localPosition = Vector3.zero;
+            pickedObject.transform.SetParent(getPoint.transform);
+            pickedObject.transform.localPosition = Vector3.zero;
             //다른 돌과 충돌하지 않는 상태
-            pickedObject.GetComponent<ObjOnAir>().SetState(10); //색 변화를 위한 디버깅용 함수. 그러나 모든 오브젝트에 다 있지는 않다.
+             //색 변화를 위한 디버깅용 함수. 그러나 모든 오브젝트에 다 있지는 않다.
+            // if(objId == 2) {
+            //     pickedObject.GetComponent<ObjOnAir>().SetState(16);
+            // } else {
+            //     pickedObject.GetComponent<ObjOnAir>().SetState(10);
+            // }
             //pickedObject.layer = 10;
+            pickedObject.GetComponent<ObjOnAir>().SetState(10);
 
             pickedRigid = pickedObject.GetComponent<Rigidbody2D>(); //이런식으로 일시적인 변수를(null이 되기도하는) 전역변수로 써도 괜찮은 걸까?
             //rigid.gravityScale = 0;
             pickedRigid.isKinematic = true;
             pickedRigid.velocity = Vector3.zero;
             pickedRigid.angularVelocity = 0f;
-            //pickedRigid.freezeRotation = true;
+            //실험
+            //pickedRigid.freezeRotation = true; //와.. 이거 잘못켰다가.. ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+            //pickedRigid.gravityScale = 0;
             //돌의 레이어까지 조정할 것.
             isPicked = true; //이건 언제 나와야 하는지
         }
@@ -145,13 +187,13 @@ public class GameManager : MonoBehaviour
 
             pickedObject.transform.localPosition = Vector3.zero;
 
-            Destroy(shadow);
+            Destroy(shadow); //없어도 되는거 아니야?
             //Destroy(center);
 
             NormalModeUI();
 
         } else {
-            Debug.Log("오류발생");
+            Debug.Log("들고 있지 않은데 들었다고?");
         }
         
     }
@@ -174,7 +216,7 @@ public class GameManager : MonoBehaviour
 
             //DrawRange(shadow);
             //center = DrawCenter(pickedObject);
-            Debug.Log(range3);
+            //Debug.Log(range3);
             //Debug.Log(timing.GetRunningTime());
 
 
@@ -272,7 +314,7 @@ public class GameManager : MonoBehaviour
         NormalModeUI();
     }
 
-    private void MomentRelease() {
+    private void MomentRelease() { //떨궈지는 액션에 모멘트를 주기 위해 만들었던 함수
         pickedRigid.isKinematic = false;
         Destroy(shadow);
     }
@@ -281,6 +323,21 @@ public class GameManager : MonoBehaviour
         if(pickedObject != null) {
             //getPoint.transform.DetachChildren();
         }
+    }
+
+    public void ThrowObj(float dirX) {
+        if(pickedObject == null) {
+            return;
+        }
+        Debug.Log("던졌당");
+        pickedRigid.isKinematic = false;
+        float objMass = pickedRigid.mass;
+        Vector3 throwingForce = new Vector3(dirX * 260f * objMass, 180f * objMass, 0);
+        
+        pickedRigid.AddForce(throwingForce);
+        pickedRigid.AddTorque(80f * -dirX);
+
+        PutDown();
     }
 
 

@@ -66,7 +66,7 @@ public class PlayerAction : MonoBehaviour
         if (x < 0)
         {
             transform.localScale = new Vector3(-0.5f, 0.5f, 1f);
-            dirVec = new Vector3(-1, -1, 0);                     //방향을 저장
+            dirVec = new Vector3(-1, -1, 0);                     //방향을 저장 //너무 낭비가 크지 않나? x값 y값만 저장해도 되지 않을까?
         }
 
         else if (x > 0)
@@ -105,9 +105,18 @@ public class PlayerAction : MonoBehaviour
 
         
         if(Input.GetKeyDown("x")){
-
+            
             SitChange();
 
+        }
+
+        //던지기는 스택모드 전, 들고 있는 상태에서만 발동한다고 가정한다.
+        if(Input.GetKeyDown("c")) {
+            if(manager.isPicked) {
+                //스택모드에서도 던질 수 있어도 재미있지 않을까?
+                manager.ThrowObj(dirVec.x);
+                animator.SetBool("isPickUp", false);
+            }
         }
         if(Input.GetMouseButtonUp(0)) { //겹치면 안된다. //터치 모드를 위해 Up으로 변경
             
@@ -195,17 +204,21 @@ public class PlayerAction : MonoBehaviour
         if(manager.isStackMode) {
                 //스택 중 픽업으로
                 manager.PickUpFromStackMode();
-                animator.SetBool("isPickUp", true);
+                //animator.SetBool("isPickUp", true); 
             }
             else if(manager.isPicked) {
                //Debug.Log("스택모드");
                 manager.StackMode();
-                animator.SetBool("isPickUp", false);
+                //animator.SetBool("isPickUp", true);
             }
             else if(meetObject != null){ //스택모드도 픽업상태도 아님
                 manager.PickUp(meetObject);
-                animator.SetBool("isPicking", true);
-                animator.SetBool("isPickUp", true);
+                //animator.SetBool("isPicking", true);
+                
+                if(meetObject.GetComponent<ObjData>().id == 0) {
+                    animator.SetBool("isPickUp", true);
+                }
+                
             }
     }
 

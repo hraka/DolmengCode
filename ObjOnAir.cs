@@ -6,6 +6,8 @@ public class ObjOnAir : MonoBehaviour
     
     private bool isPicked;
 
+    private float debugV;
+
     private Rigidbody2D rigid2D;
 
     void Awake() {
@@ -42,6 +44,19 @@ public class ObjOnAir : MonoBehaviour
            // gameObject.GetComponent<SpriteRenderer>().color = Color.green;
             
             // gameObject.layer = 9;
+
+            
+            if( Mathf.Abs(gameObject.GetComponent<Rigidbody2D>().angularVelocity) > 50.0f) {
+                if(debugV < Mathf.Abs(gameObject.GetComponent<Rigidbody2D>().angularVelocity)) {
+                    debugV = Mathf.Abs(gameObject.GetComponent<Rigidbody2D>().angularVelocity);
+                    //Debug.Log(debugV); //확인결과 엄청튄다...
+                }
+                
+                isOnAir = true;
+                
+                SetState(16);
+                gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+            }
         }
     }   
 
@@ -108,15 +123,15 @@ public class ObjOnAir : MonoBehaviour
         if(state == 9) {
             
             gameObject.layer = 9;
-            //this.GetComponent<SpriteRenderer>().color = Color.blue;
+            this.GetComponent<SpriteRenderer>().color = Color.blue;
         }
         else if(state == 16) {
             gameObject.layer = 16;
-            //this.GetComponent<SpriteRenderer>().color = Color.red;
+            this.GetComponent<SpriteRenderer>().color = Color.red;
         }
         else if(state == 10) {
             gameObject.layer = 10;
-            //this.GetComponent<SpriteRenderer>().color = Color.yellow;
+            this.GetComponent<SpriteRenderer>().color = Color.yellow;
         } else {
             Debug.Log("오류: 없는 번호");
         }        
