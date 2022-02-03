@@ -14,6 +14,8 @@ public class PlayerAction : MonoBehaviour
     private Rigidbody2D rigid2D;
     private Animator animator;
     private Vector3 dirVec = new Vector3(1, -1, 0);
+
+    private Vector3 upVec = new Vector3(1, 1, 0);
     private GameObject meetObject;
     public GameManager manager;
 
@@ -118,6 +120,13 @@ public class PlayerAction : MonoBehaviour
                 animator.SetBool("isPickUp", false);
             }
         }
+        if(Input.GetKeyDown("v")) {
+            Debug.Log("v누름");
+            if(manager.isPicked) {
+                manager.JjockjiAction();
+            }
+            
+        }
         if(Input.GetMouseButtonUp(0)) { //겹치면 안된다. //터치 모드를 위해 Up으로 변경
             
             PutDown();
@@ -152,6 +161,10 @@ public class PlayerAction : MonoBehaviour
 
 
 
+        //올라가기
+        upVec = new Vector3(dirVec.x, 0, 0);
+        Debug.DrawRay(rigid2D.position, upVec * 0.6f, new Color(1, 0, 0));
+        RaycastHit2D upRayHit = Physics2D.Raycast(rigid2D.position, upVec, 0.6f, LayerMask.GetMask("Object"));
 
         if(Input.GetKeyDown("1")) {
             ChangeMood(1);

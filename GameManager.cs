@@ -1,9 +1,18 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     private GameObject pickedObject;
+
+    public JjockjiManager jjockjiManager;
+
+    public TextMeshProUGUI jjockjiText;
+
+    private int contentIndex;
+
+    public int objId;
     public bool isPicked;
     public bool isStackMode;
     public bool isMoveable;
@@ -57,6 +66,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject[] UIStackOn;
+
+    public GameObject JjockjiUI;
+    private bool isJjockjiUIOn;
 
     [SerializeField] private GameObject frontHand;
     private GameObject bothHand;
@@ -118,10 +130,6 @@ public class GameManager : MonoBehaviour
     //돌들기 모드
     public void PickUp(GameObject meetObject)
     {
-        //판정을 어디서 해야 하지?
-        //돌을 들 수 있으면 돌을 든다에서 조건 부분은 함수 호출전에 검토되어야 하는가?
-        //함수 호출 후에 검토되는게 나은가?
-        //클래스끼리 변수를 주고 받아 멀리서 판정하는게 과연 합당한가?
 
         if (pickedObject != null)
         {
@@ -140,12 +148,15 @@ public class GameManager : MonoBehaviour
             
             
             pickedObject = meetObject;
-            int objId = pickedObject.GetComponent<ObjData>().id;
+            objId = pickedObject.GetComponent<ObjData>().id;
             if(objId == 2) { 
                 getPoint = frontHand;
                 pickedObject.transform.localRotation = Quaternion.identity;
                 isStick = true;
-            } else {
+            } else if(objId == 3) {
+                getPoint = frontHand;
+            }
+            else{
                 getPoint = bothHand;
                 isStick = false;
             }
@@ -154,13 +165,7 @@ public class GameManager : MonoBehaviour
             pickedObject.transform.SetParent(getPoint.transform);
             pickedObject.transform.localPosition = Vector3.zero;
             //다른 돌과 충돌하지 않는 상태
-             //색 변화를 위한 디버깅용 함수. 그러나 모든 오브젝트에 다 있지는 않다.
-            // if(objId == 2) {
-            //     pickedObject.GetComponent<ObjOnAir>().SetState(16);
-            // } else {
-            //     pickedObject.GetComponent<ObjOnAir>().SetState(10);
-            // }
-            //pickedObject.layer = 10;
+
             pickedObject.GetComponent<ObjOnAir>().SetState(10);
 
             pickedRigid = pickedObject.GetComponent<Rigidbody2D>(); //이런식으로 일시적인 변수를(null이 되기도하는) 전역변수로 써도 괜찮은 걸까?
@@ -187,7 +192,7 @@ public class GameManager : MonoBehaviour
 
             pickedObject.transform.localPosition = Vector3.zero;
 
-            Destroy(shadow); //없어도 되는거 아니야?
+            //Destroy(shadow); //없어도 되는거 아니야?
             //Destroy(center);
 
             NormalModeUI();
@@ -204,24 +209,28 @@ public class GameManager : MonoBehaviour
     //돌 쌓기 모드
     public void StackMode() {
         if(pickedObject != null) {
-            StackModeUI();
-            isStackMode = true;
-            getPoint.transform.DetachChildren();
-            stackModeCam.enabled = true;
-            isMoveable = false;
+            if(objId == 3){
+                JjockjiAction();
+            } else {
+                StackModeUI();
+                isStackMode = true;
+                getPoint.transform.DetachChildren();
+                stackModeCam.enabled = true;
+                isMoveable = false;
 
-            pickedSpriteRenderer = pickedObject.GetComponent<SpriteRenderer>();
+                pickedSpriteRenderer = pickedObject.GetComponent<SpriteRenderer>();
 
-            //shadow = AddShadow(pickedObject);   //그림자를 저장해야 나중에 삭제할 수 있다.
+                //shadow = AddShadow(pickedObject);   //그림자를 저장해야 나중에 삭제할 수 있다.
 
-            //DrawRange(shadow);
-            //center = DrawCenter(pickedObject);
-            //Debug.Log(range3);
-            //Debug.Log(timing.GetRunningTime());
+                //DrawRange(shadow);
+                //center = DrawCenter(pickedObject);
+                //Debug.Log(range3);
+                //Debug.Log(timing.GetRunningTime());
 
 
-            //스택모드 조작 활성화 시간
-            Invoke("CanPutDown", .1f);
+                //스택모드 조작 활성화 시간
+                Invoke("CanPutDown", .1f);
+            } 
         } else {
             Debug.Log("오류발생");
         }
@@ -292,12 +301,18 @@ public class GameManager : MonoBehaviour
             MomentRelease(); //Invoke("MomentRelease", 0.16f);
 
             pickedObject = null;
+            objId = 0;
 
             //카메라가 바뀐다. (단 스택모드에서 이동할 때만...)
             //돌의 속성이 바뀐다.
             //조작시 모드가 연출 딜레이 후에 바뀐다.
 
             Invoke("OutMode",.8f);
+
+
+            //혹시 몰라서 추가(?) - 이렇게 혹시 모르는 경우를 포함하는게 맞는 걸까
+            JjockjiUI.SetActive(false);
+            isJjockjiUIOn = false;
         }
         else {
             //아무것도 없을일은 없는데...
@@ -332,19 +347,45 @@ public class GameManager : MonoBehaviour
         Debug.Log("던졌당");
         pickedRigid.isKinematic = false;
         float objMass = pickedRigid.mass;
-        Vector3 throwingForce = new Vector3(dirX * 260f * objMass, 180f * objMass, 0);
+        Vector3 throwingForce = new Vector3(dirX * 260f * objMass, 160f * objMass, 0);
         
         pickedRigid.AddForce(throwingForce);
-        pickedRigid.AddTorque(80f * -dirX);
+        pickedRigid.AddTorque(10f * -dirX * objMass);
 
         PutDown();
+    }
+
+    public void JjockjiAction() {
+        if(objId == 3) {
+            Debug.Log("쪽지넹");
+            if(isJjockjiUIOn) {
+                isJjockjiUIOn = false;
+                
+            } else {
+                isJjockjiUIOn = true;
+                ReadJjockji(objId);
+            }
+            JjockjiUI.SetActive(isJjockjiUIOn);
+        }
+    
+    }
+
+    void ReadJjockji(int id) {
+        string jjockjiData = jjockjiManager.GetContent(id, contentIndex);
+        
+        if(jjockjiData == null) {
+            return;
+        }
+
+        jjockjiText.text = jjockjiData;
+        contentIndex++;
     }
 
 
 
     /////타이밍바/////
 
-
+/*
     private GameObject AddShadow(GameObject getting) {
 
 
@@ -449,4 +490,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         //picked.GetComponent<Rigidbody2D>().drag = 0;
     }
+
+    */
 }
+
+
